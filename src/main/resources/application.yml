@@ -1,0 +1,45 @@
+datasource:
+    master:
+        host: masterip
+        port: 3306
+        db: master_slave
+        username: root
+        password: 123456
+        mappersPath: com.example.mapper
+        maxIdle: 20
+        minIdle: 10
+        maxActive: 20
+        validationInterval: 30000
+        validationQueryTimeout: 5
+        timeBetweenEvictionRunsMillis: 1800000
+        initialSize: 2
+        maxWait: 10000
+        removeAbandonedTimeout: 60
+        minEvictableIdleTimeMillis: 30000
+    slave:
+        host: slaveip
+        port: 3306
+        db: master_slave
+        username: root
+        password: 123456
+        mappersPath: com.example.mapper
+        maxIdle: 20
+        minIdle: 10
+        maxActive: 20
+        validationInterval: 30000
+        validationQueryTimeout: 5
+        timeBetweenEvictionRunsMillis: 1800000
+        initialSize: 2
+        maxWait: 10000
+        removeAbandonedTimeout: 60
+        minEvictableIdleTimeMillis: 30000
+
+server:
+    port: 8081
+
+
+
+logging:
+    config : "classpath:logback.xml"
+    path : "/Users/paul/Desktop/log"
+

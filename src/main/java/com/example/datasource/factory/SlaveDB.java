@@ -1,0 +1,64 @@
+package com.example.datasource.factory;
+
+import org.apache.tomcat.jdbc.pool.DataSource;
+import org.apache.tomcat.jdbc.pool.PoolProperties;
+import org.mybatis.spring.SqlSessionFactoryBean;
+import org.mybatis.spring.SqlSessionTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PreDestroy;
+
+
+@Component
+@Configuration
+public class SlaveDB {
+
+	private static Logger logger = LoggerFactory.getLogger(MasterDB.class);
+	@Autowired
+	private DatasourceProperties datasourceProperties;
+
+	public SlaveDB() {
+	}
+
+	public SqlSessionTemplate getSqlSession() {
+		try {
+			return new SqlSessionTemplate(slaveSqlSessionFactoryBean().getObject());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		return null;
+	}
+
+	@Bean
+	@Scope("prototype")
+	SqlSessionTemplate slaveSqlSessionTemplate() {
+		return this.getSqlSession();
+	}
+
+	@Bean
+	SqlSessionFactoryBean slaveSqlSessionFactoryBean() {
+		SqlSessionFactoryBean sqlSessionFactory = new SqlSessionFactoryBean();
+		sqlSessionFactory.setDataSource(slaveDataSource());
+		return sqlSessionFactory;
+	}
+
+	@Bean
+	DataSource slaveDataSource() {
+		PoolProperties p = DBHelper.buildPoolProperties(datasourceProperties.getSlave());
+		p.setDefaultReadOnly(true);
+		p.setLogAbandoned(true);
+		return new DataSource(p){
+            @PreDestroy
+            public void close(){
+                   super.close(true);
+                } 
+        };
+	}
+
+}
